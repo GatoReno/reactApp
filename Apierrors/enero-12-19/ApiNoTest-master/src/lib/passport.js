@@ -44,22 +44,46 @@ passport.use('local.signup', new LocalStrategy({
     passReqToCallback : true
 }, async (req,name,pass,done) => {
    //console.log(req.body);
+
+
     const newUser = {
         name,
         pass,
         mail: req.body.mail ? req.body.mail : '',
         role: req.body.role ? parseInt(req.body.role) : 1,
         status : 1,
-        data : ''
+        data : '',
+        admin : null,
+        owner: null
     };
+   
+    
+        const chck = await pool.query('select * from users where pass = ?',newUser.pass);
+        if(chck.length > 0){
+            console.log(chck)
+            return done(null,false,req.flash('errores', 'Ya existe usario con ese mail.')); 
+
+        }else{
+
+
+        switch(newUser.role){
+            case 3:
+                newUser.admin = 1;
+            break;
+            case 1:
+                newUser.owner = 1;
+        }
+        
+
+
         newUser.pass = await helpers.encryptPass(pass);
         
         const result = await pool.query('Insert into Users set ?',[newUser]);
 
         console.log(result);
-        newUser.id = result.insertId;
+        newUser.id_user = result.insertId;
         return done(null,newUser,req.flash('message', 'Usuario Creado con exito, ve a tu perfil .')); 
-
+    }
 }));
 
 

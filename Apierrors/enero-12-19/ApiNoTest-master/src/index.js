@@ -53,6 +53,7 @@ app.use((req,res,next) => {
     app.locals.message = req.flash('message');
     app.locals.errores = req.flash('errores');
 
+    app.locals.user = req.user;
     next();
 });
 

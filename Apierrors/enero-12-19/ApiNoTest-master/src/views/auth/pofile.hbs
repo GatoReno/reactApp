@@ -1,1 +1,6 @@
-<h1>porfile</h1>
+   {{#if user}}
+        {{user.role}}
+            <h1>Role</h1>
+        {{user.admin}}
+                <h1>Admin</h1>
+   {{/if}}  

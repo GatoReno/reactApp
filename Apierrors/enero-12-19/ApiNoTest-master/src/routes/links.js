@@ -4,9 +4,11 @@ const express = require('express');
 const router = express.Router();
 
 const pool = require('../../db');
+const {isLoggedIn} = require('../lib/auth');
 
 //ruta añadir
-router.get('/add',(req,res) => {
+router.get('/add',isLoggedIn,(req,res) => {
+    
     res.render('links/add');
 });
 
@@ -18,7 +20,7 @@ router.get('/x',(req,res) => {
 
 
 //añadir proyecto
-router.post('/add', async (req,res) => {
+router.post('/add', isLoggedIn ,async (req,res) => {
     //obteniendo datos
     const {name,url,descrip} = req.body;
     
@@ -30,7 +32,8 @@ router.post('/add', async (req,res) => {
         description : descrip
         
     };
-    
+
+  
     console.log(newLink);
     //for(i= 0; i < 100; i++){
         await pool.query('INSERT INTO LINKS set ?',[newLink]);
@@ -61,7 +64,7 @@ router.post('/', async(req,res) => {
 });
 
 //eliminar proyecto
-router.get('/delete/:id', async (req,res) => {
+router.get('/delete/:id', isLoggedIn ,async (req,res) => {
     const {id} = req.params;
     pool.query('DELETE FROM LINKS WHERE ID = ?',[id]);
     console.log('link with id '+{id}+' deleted succcesfuly');
@@ -72,17 +75,23 @@ router.get('/delete/:id', async (req,res) => {
 });
 
 //editar proyecto
-router.get('/update/:id', async (req,res) => {
+router.get('/update/:id', isLoggedIn ,async (req,res) => {
     const {id} = req.params;
-    const links = await pool.query('Select * from Links where id  = ?',[id]);
+    const links = await pool.query('Select * from Links where id  = ?' ,[id]);
+
 
     //console.log(links[0])
     
     res.render('links/edit',{links:links[0]});
 });
 
+router.get('/proyect',(req,res) =>{
+    res.render('links/formEmprendedor');
+});
+
+
 //query de edición
-router.post('/update/edit/:id',async (req,res) => {
+router.post('/update/edit/:id', isLoggedIn ,async (req,res) => {
     const {id} = req.params;
     const {name,url,descrip} = req.body;
     
